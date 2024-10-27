@@ -12,7 +12,7 @@ namespace KmeansColorClustering
             new(1920, 1080),
             new(2560, 1440),
             ];
-        Image originalImage = new Bitmap(1,1); // Just to avoid null reference exception
+        Image originalImage = new Bitmap(1, 1); // Just to avoid null reference exception
 
         public Form1()
         {
@@ -70,15 +70,20 @@ namespace KmeansColorClustering
                     pictureBoxOriginal.Image = originalImage;
                     pictureBoxOriginal.SizeMode = PictureBoxSizeMode.Zoom;
                 }
-                catch (Exception ex) 
-                { 
+                catch (Exception ex)
+                {
                     string msg = ex.Message;
                     if (ex is OutOfMemoryException)
                         msg = "There was an error loading this image. It may be corrupted or not supported.";
 
-                    MessageBox.Show(msg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); 
+                    MessageBox.Show(msg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
+        }
+
+        private void BtnGO_Click(object sender, EventArgs e)
+        {
+            byte[,,] bytes = KMeans.ConvertToByteArray(originalImage);
         }
     }
 }

@@ -53,8 +53,10 @@
             lblTitle = new Label();
             tableLayoutPanel8 = new TableLayoutPanel();
             tableLayoutPanel7 = new TableLayoutPanel();
+            pictureBoxOutput = new PictureBox();
             lblResult = new Label();
             lblOriginal = new Label();
+            pictureBoxOriginal = new PictureBox();
             panel7 = new Panel();
             btnGO = new Button();
             btnLoad = new Button();
@@ -66,8 +68,6 @@
             panel4 = new Panel();
             label3 = new Label();
             LoadImageDialog = new OpenFileDialog();
-            pictureBoxOriginal = new PictureBox();
-            pictureBoxOutput = new PictureBox();
             tableLayoutPanel1.SuspendLayout();
             tableLayoutPanel2.SuspendLayout();
             tableLayoutPanel3.SuspendLayout();
@@ -81,12 +81,12 @@
             tableLayoutPanel6.SuspendLayout();
             tableLayoutPanel8.SuspendLayout();
             tableLayoutPanel7.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxOutput).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxOriginal).BeginInit();
             panel7.SuspendLayout();
             tableLayoutPanel4.SuspendLayout();
             panel3.SuspendLayout();
             panel4.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)pictureBoxOriginal).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)pictureBoxOutput).BeginInit();
             SuspendLayout();
             // 
             // comboBoxResolution
@@ -402,6 +402,15 @@
             tableLayoutPanel7.Size = new Size(1501, 517);
             tableLayoutPanel7.TabIndex = 0;
             // 
+            // pictureBoxOutput
+            // 
+            pictureBoxOutput.Dock = DockStyle.Fill;
+            pictureBoxOutput.Location = new Point(754, 73);
+            pictureBoxOutput.Name = "pictureBoxOutput";
+            pictureBoxOutput.Size = new Size(742, 439);
+            pictureBoxOutput.TabIndex = 3;
+            pictureBoxOutput.TabStop = false;
+            // 
             // lblResult
             // 
             lblResult.Dock = DockStyle.Fill;
@@ -424,6 +433,15 @@
             lblOriginal.Text = "Original Image (Preview)";
             lblOriginal.TextAlign = ContentAlignment.MiddleCenter;
             // 
+            // pictureBoxOriginal
+            // 
+            pictureBoxOriginal.Dock = DockStyle.Fill;
+            pictureBoxOriginal.Location = new Point(5, 73);
+            pictureBoxOriginal.Name = "pictureBoxOriginal";
+            pictureBoxOriginal.Size = new Size(741, 439);
+            pictureBoxOriginal.TabIndex = 2;
+            pictureBoxOriginal.TabStop = false;
+            // 
             // panel7
             // 
             panel7.Controls.Add(btnGO);
@@ -443,6 +461,7 @@
             btnGO.TabIndex = 1;
             btnGO.Text = "Reduce Colors";
             btnGO.UseVisualStyleBackColor = true;
+            btnGO.Click += BtnGO_Click;
             // 
             // btnLoad
             // 
@@ -538,24 +557,6 @@
             // 
             LoadImageDialog.FileName = "openFileDialog1";
             // 
-            // pictureBoxOriginal
-            // 
-            pictureBoxOriginal.Dock = DockStyle.Fill;
-            pictureBoxOriginal.Location = new Point(5, 73);
-            pictureBoxOriginal.Name = "pictureBoxOriginal";
-            pictureBoxOriginal.Size = new Size(741, 439);
-            pictureBoxOriginal.TabIndex = 2;
-            pictureBoxOriginal.TabStop = false;
-            // 
-            // pictureBoxOutput
-            // 
-            pictureBoxOutput.Dock = DockStyle.Fill;
-            pictureBoxOutput.Location = new Point(754, 73);
-            pictureBoxOutput.Name = "pictureBoxOutput";
-            pictureBoxOutput.Size = new Size(742, 439);
-            pictureBoxOutput.TabIndex = 3;
-            pictureBoxOutput.TabStop = false;
-            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 14F);
@@ -585,13 +586,13 @@
             tableLayoutPanel6.ResumeLayout(false);
             tableLayoutPanel8.ResumeLayout(false);
             tableLayoutPanel7.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)pictureBoxOutput).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxOriginal).EndInit();
             panel7.ResumeLayout(false);
             tableLayoutPanel4.ResumeLayout(false);
             panel3.ResumeLayout(false);
             panel3.PerformLayout();
             panel4.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)pictureBoxOriginal).EndInit();
-            ((System.ComponentModel.ISupportInitialize)pictureBoxOutput).EndInit();
             ResumeLayout(false);
         }
 
