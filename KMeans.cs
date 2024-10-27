@@ -18,7 +18,6 @@ namespace KmeansColorClustering
         {
             var input_image = ConvertToByteArray(image);
 
-            
 
             List<Centroid> centroids = GetCentroids(k);
 
@@ -58,6 +57,20 @@ namespace KmeansColorClustering
             var output_image = GetImageFromPixels(pixels);
            
             return ConvertToImage(output_image);
+        }
+
+        static Bitmap ConvertTo24bpp(Bitmap img)
+        {
+            // Create a new Bitmap with 24bpp format and the same size as the original image
+            Bitmap newImage = new Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
+
+            // Use Graphics to draw the 32bpp image onto the 24bpp Bitmap
+            using (Graphics g = Graphics.FromImage(newImage))
+            {
+                g.DrawImage(img, new Rectangle(0, 0, img.Width, img.Height));
+            }
+
+            return newImage;
         }
 
         private static void CalculateCenter(Centroid centroid)
@@ -125,14 +138,14 @@ namespace KmeansColorClustering
         // but seriously, i don't know if it's just alot less efficient but all others do it with a DataStream or something this just so easy why not?
         // turns out GePixel is stupid slow so he is gonna get replaced by LockBits
         {
-            using Bitmap bmp = new(image);
+            using Bitmap bmp = ConvertTo24bpp(new(image));
             Rectangle rect = new(0, 0, bmp.Width, bmp.Height);
             BitmapData bmpData = bmp.LockBits(rect, ImageLockMode.ReadOnly, bmp.PixelFormat); // Lock the bits so other code can't mess with it
             IntPtr ptr = bmpData.Scan0; // Get the pointer to the first pixel this works because our pixels are saved in an array (after one another in memory)
             int bytes = Math.Abs(bmpData.Stride) * bmp.Height; // Gives us the amount of bytes we need to store the image in 1d array
             // Stride is the amount of bytes in one row of the image, is negative if the image is upside down 
             byte[] rgbValues = new byte[bytes];
-            System.Runtime.InteropServices.Marshal.Copy(ptr, rgbValues, 0, bytes); // Copy the bytes from the image to our array
+            Marshal.Copy(ptr, rgbValues, 0, bytes); // Copy the bytes from the image to our array
             // this stuff so cool why we not learn it in school xD
 
             byte[,,] result = new byte[bmp.Width, bmp.Height, 3]; // [Width, Height, [R,G,B]]

@@ -69,6 +69,7 @@ namespace KmeansColorClustering
                     originalImage = Image.FromFile(ofd.FileName);
                     pictureBoxOriginal.Image = originalImage;
                     pictureBoxOriginal.SizeMode = PictureBoxSizeMode.Zoom;
+                    label4.Text = $"Image loaded from: {ofd.FileName}";
                 }
                 catch (Exception ex)
                 {
@@ -88,11 +89,10 @@ namespace KmeansColorClustering
             int runs = (int)numInRuns.Value;
             Image res = KMeans.ClusterImage(originalImage, k, iterations, runs);
             pictureBoxOutput.Image = res;
-            MessageBox.Show($"Original Width: {pictureBoxOriginal.Image.Width} Result Width: {pictureBoxOutput.Image.Width} \n" +
-                            $"Original Height: {pictureBoxOriginal.Image.Height} Result Height: {pictureBoxOutput.Image.Height}");
+            btnSave.Enabled = true;
         }
 
-        private void btnSave_Click(object sender, EventArgs e)
+        private void BtnSave_Click(object sender, EventArgs e)
         {
             using SaveFileDialog dlg = new()
             {

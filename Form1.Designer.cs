@@ -68,6 +68,7 @@
             comboBox1 = new ComboBox();
             panel4 = new Panel();
             label3 = new Label();
+            label4 = new Label();
             tableLayoutPanel1.SuspendLayout();
             tableLayoutPanel2.SuspendLayout();
             tableLayoutPanel3.SuspendLayout();
@@ -446,6 +447,7 @@
             // 
             // panel7
             // 
+            panel7.Controls.Add(label4);
             panel7.Controls.Add(btnSave);
             panel7.Controls.Add(btnGO);
             panel7.Controls.Add(btnLoad);
@@ -457,19 +459,20 @@
             // 
             // btnSave
             // 
+            btnSave.Enabled = false;
             btnSave.Font = new Font("Consolas", 18F);
-            btnSave.Location = new Point(258, 222);
+            btnSave.Location = new Point(45, 148);
             btnSave.Name = "btnSave";
             btnSave.Size = new Size(193, 49);
             btnSave.TabIndex = 2;
             btnSave.Text = "Save Image";
             btnSave.UseVisualStyleBackColor = true;
-            btnSave.Click += btnSave_Click;
+            btnSave.Click += BtnSave_Click;
             // 
             // btnGO
             // 
             btnGO.Font = new Font("Consolas", 18F);
-            btnGO.Location = new Point(974, 154);
+            btnGO.Location = new Point(45, 251);
             btnGO.Name = "btnGO";
             btnGO.Size = new Size(239, 49);
             btnGO.TabIndex = 1;
@@ -480,7 +483,7 @@
             // btnLoad
             // 
             btnLoad.Font = new Font("Consolas", 18F);
-            btnLoad.Location = new Point(258, 154);
+            btnLoad.Location = new Point(45, 40);
             btnLoad.Name = "btnLoad";
             btnLoad.Size = new Size(193, 49);
             btnLoad.TabIndex = 0;
@@ -544,7 +547,7 @@
             comboBox1.Location = new Point(24, 33);
             comboBox1.Margin = new Padding(4, 3, 4, 3);
             comboBox1.Name = "comboBox1";
-            comboBox1.Size = new Size(187, 34);
+            comboBox1.Size = new Size(187, 32);
             comboBox1.Sorted = true;
             comboBox1.TabIndex = 0;
             // 
@@ -566,6 +569,16 @@
             label3.Size = new Size(194, 45);
             label3.TabIndex = 0;
             label3.Text = "App Settings";
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Font = new Font("Consolas", 18F);
+            label4.ForeColor = SystemColors.ControlDarkDark;
+            label4.Location = new Point(244, 50);
+            label4.Name = "label4";
+            label4.Size = new Size(0, 28);
+            label4.TabIndex = 3;
             // 
             // Form1
             // 
@@ -599,6 +612,7 @@
             ((System.ComponentModel.ISupportInitialize)pictureBoxOutput).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOriginal).EndInit();
             panel7.ResumeLayout(false);
+            panel7.PerformLayout();
             tableLayoutPanel4.ResumeLayout(false);
             panel3.ResumeLayout(false);
             panel3.PerformLayout();
@@ -648,5 +662,6 @@
         private PictureBox pictureBoxOutput;
         private PictureBox pictureBoxOriginal;
         private Button btnSave;
+        private Label label4;
     }
 }
