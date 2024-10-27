@@ -408,6 +408,7 @@
             pictureBoxOutput.Location = new Point(754, 73);
             pictureBoxOutput.Name = "pictureBoxOutput";
             pictureBoxOutput.Size = new Size(742, 439);
+            pictureBoxOutput.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBoxOutput.TabIndex = 3;
             pictureBoxOutput.TabStop = false;
             // 
@@ -439,6 +440,7 @@
             pictureBoxOriginal.Location = new Point(5, 73);
             pictureBoxOriginal.Name = "pictureBoxOriginal";
             pictureBoxOriginal.Size = new Size(741, 439);
+            pictureBoxOriginal.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBoxOriginal.TabIndex = 2;
             pictureBoxOriginal.TabStop = false;
             // 

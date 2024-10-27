@@ -9,6 +9,6 @@ namespace KmeansColorClustering
     internal class Centroid(Color color)
     {
         public Color Color { get; set; } = color;
-
+        public HashSet<Pixel> Pixels { get; set; } = [];
     }
 }

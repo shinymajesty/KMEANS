@@ -83,7 +83,10 @@ namespace KmeansColorClustering
 
         private void BtnGO_Click(object sender, EventArgs e)
         {
-            KMeans.ClusterImage(originalImage, 5, 100, 5);
+            int k = (int) numInClusters.Value;
+            int iterations = (int) numInIterations.Value;
+            int runs = (int) numInRuns.Value;
+            pictureBoxOutput.Image = KMeans.ClusterImage(originalImage, k, iterations, runs);
         }
     }
 }
