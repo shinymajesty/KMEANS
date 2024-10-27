@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,6 +23,14 @@ namespace KmeansColorClustering
             {
                 centroids.Add(GenerateCentroid(input_image, centroids));
             }
+            MessageBox.Show("Centroids generated");
+            StringBuilder sb = new();
+            foreach (var c in centroids)
+            {
+                sb.Append($"Centroid:  R: { c.R.ToString()} G: {c.G.ToString()} B: {c.B.ToString()}\n");
+            }
+            MessageBox.Show(sb.ToString());
+            
             return new Bitmap(1, 1);
         }
         
@@ -40,21 +49,38 @@ namespace KmeansColorClustering
         /// <returns>byte[,,] the result as [Width,Height,[R,G,B]]</returns>
         internal static byte[,,] ConvertToByteArray(Image image) // I made this myself im so proud haha :D no dependencies for me!!!!!!
         // but seriously, i don't know if it's just alot less efficient but all others do it with a DataStream or something this just so easy why not?
+        // turns out GePixel is stupid slow so he is gonna get replaced by LockBits
         {
-            using Bitmap bmp = new(image); // Very practical to use using here, as it disposes the bitmap after the block, also fancy .NET 8 syntax 
-            byte[,,] result = new byte[bmp.Width, bmp.Height, 3]; // [Widht, Height, [R,G,B]] 
-            // Populate the array
-            for (int x = 0; x < bmp.Width; x++)
+            using Bitmap bmp = new(image);
+            Rectangle rect = new(0, 0, bmp.Width, bmp.Height);
+            BitmapData bmpData = bmp.LockBits(rect, ImageLockMode.ReadOnly, bmp.PixelFormat); // Lock the bits so other code can't mess with it
+            IntPtr ptr = bmpData.Scan0; // Get the pointer to the first pixel this works because our pixels are saved in an array (after one another in memory)
+            int bytes = Math.Abs(bmpData.Stride) * bmp.Height; // Gives us the amount of bytes we need to store the image in 1d array
+            // Stride is the amount of bytes in one row of the image, is negative if the image is upside down 
+            byte[] rgbValues = new byte[bytes];
+            System.Runtime.InteropServices.Marshal.Copy(ptr, rgbValues, 0, bytes); // Copy the bytes from the image to our array
+            // this stuff so cool why we not learn it in school xD
+
+            byte[,,] result = new byte[bmp.Width, bmp.Height, 3]; // [Width, Height, [R,G,B]]
+
+            int index = 0; // Index for the 1D array
+            for (int y = 0; y < bmp.Height; y++)
             {
-                for (int y = 0; y < bmp.Height; y++)
+                for (int x = 0; x < bmp.Width; x++) // This made me lose my mind why is it not stored as RGB but BGR ???????
                 {
-                    Color color = bmp.GetPixel(x, y);
-                    result[x, y, 0] = color.R;
-                    result[x, y, 1] = color.G;
-                    result[x, y, 2] = color.B;
+                    result[x, y, 0] = rgbValues[index + 2]; // R
+                    result[x, y, 1] = rgbValues[index + 1]; // G
+                    result[x, y, 2] = rgbValues[index]; // B
+                    index += 3;
                 }
+                index += bmpData.Stride - (bmp.Width * 3); // Padding bytes 
             }
+
+            bmp.UnlockBits(bmpData); // Unlock the bits so other code can access
             return result;
+
+            // Note after the fact: For a full HD image the change from GetPixel to LockBits reduced the runtuime from <= 0.48 to <= 0.2 seconds which is a huge improvement 
+            // Keep in mind these numbers are built in debug and not release so it will be even faster later on !! ^^
         }
         
         /// <summary>

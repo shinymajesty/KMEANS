@@ -83,7 +83,7 @@ namespace KmeansColorClustering
 
         private void BtnGO_Click(object sender, EventArgs e)
         {
-            byte[,,] bytes = KMeans.ConvertToByteArray(originalImage);
+            KMeans.ClusterImage(originalImage, 5, 100, 5);
         }
     }
 }
