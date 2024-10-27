@@ -83,10 +83,37 @@ namespace KmeansColorClustering
 
         private void BtnGO_Click(object sender, EventArgs e)
         {
-            int k = (int) numInClusters.Value;
-            int iterations = (int) numInIterations.Value;
-            int runs = (int) numInRuns.Value;
-            pictureBoxOutput.Image = KMeans.ClusterImage(originalImage, k, iterations, runs);
+            int k = (int)numInClusters.Value;
+            int iterations = (int)numInIterations.Value;
+            int runs = (int)numInRuns.Value;
+            Image res = KMeans.ClusterImage(originalImage, k, iterations, runs);
+            pictureBoxOutput.Image = res;
+            MessageBox.Show($"Original Width: {pictureBoxOriginal.Image.Width} Result Width: {pictureBoxOutput.Image.Width} \n" +
+                            $"Original Height: {pictureBoxOriginal.Image.Height} Result Height: {pictureBoxOutput.Image.Height}");
+        }
+
+        private void btnSave_Click(object sender, EventArgs e)
+        {
+            using SaveFileDialog dlg = new()
+            {
+                Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.tiff;*.tif",
+                Title = "Save Image",
+                CheckPathExists = true,
+                CheckWriteAccess = true
+            };
+            if (dlg.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    pictureBoxOutput.Image.Save(dlg.FileName);
+                    MessageBox.Show("Image Saved Successfully");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+
         }
     }
 }

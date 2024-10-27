@@ -58,6 +58,7 @@
             lblOriginal = new Label();
             pictureBoxOriginal = new PictureBox();
             panel7 = new Panel();
+            btnSave = new Button();
             btnGO = new Button();
             btnLoad = new Button();
             tableLayoutPanel4 = new TableLayoutPanel();
@@ -67,7 +68,6 @@
             comboBox1 = new ComboBox();
             panel4 = new Panel();
             label3 = new Label();
-            LoadImageDialog = new OpenFileDialog();
             tableLayoutPanel1.SuspendLayout();
             tableLayoutPanel2.SuspendLayout();
             tableLayoutPanel3.SuspendLayout();
@@ -446,6 +446,7 @@
             // 
             // panel7
             // 
+            panel7.Controls.Add(btnSave);
             panel7.Controls.Add(btnGO);
             panel7.Controls.Add(btnLoad);
             panel7.Dock = DockStyle.Fill;
@@ -453,6 +454,17 @@
             panel7.Name = "panel7";
             panel7.Size = new Size(1501, 363);
             panel7.TabIndex = 1;
+            // 
+            // btnSave
+            // 
+            btnSave.Font = new Font("Consolas", 18F);
+            btnSave.Location = new Point(258, 222);
+            btnSave.Name = "btnSave";
+            btnSave.Size = new Size(193, 49);
+            btnSave.TabIndex = 2;
+            btnSave.Text = "Save Image";
+            btnSave.UseVisualStyleBackColor = true;
+            btnSave.Click += btnSave_Click;
             // 
             // btnGO
             // 
@@ -555,10 +567,6 @@
             label3.TabIndex = 0;
             label3.Text = "App Settings";
             // 
-            // LoadImageDialog
-            // 
-            LoadImageDialog.FileName = "openFileDialog1";
-            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 14F);
@@ -637,8 +645,8 @@
         private Panel panel7;
         private Button btnGO;
         private Button btnLoad;
-        private OpenFileDialog LoadImageDialog;
         private PictureBox pictureBoxOutput;
         private PictureBox pictureBoxOriginal;
+        private Button btnSave;
     }
 }

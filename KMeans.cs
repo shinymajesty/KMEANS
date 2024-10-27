@@ -18,15 +18,31 @@ namespace KmeansColorClustering
         {
             var input_image = ConvertToByteArray(image);
 
+            
+
             List<Centroid> centroids = GetCentroids(k);
 
             List<Pixel> pixels = GetPixelsFromImage(input_image);
 
-            foreach (var pixel in pixels)
+            for (int i = 0; i < 10; i++)
             {
-                Centroid closestCentroid = Pixel.FindClosestCentroid(centroids, pixel);
+                foreach (var centroid in centroids)
+                    centroid.Pixels.Clear();
 
-                closestCentroid.Pixels.Add(pixel);
+                Parallel.ForEach(pixels, pixel =>
+                {
+                    Centroid closestCentroid = Pixel.FindClosestCentroid(centroids, pixel);
+                    lock (closestCentroid.Pixels)
+                        closestCentroid.Pixels.Add(pixel);
+                    
+                });
+
+                Parallel.ForEach(centroids, centroid =>
+                {
+                    CalculateCenter(centroid);
+                });
+
+
             }
 
             foreach (var centroid in centroids)
@@ -37,10 +53,23 @@ namespace KmeansColorClustering
                 }
                 
             }
-            var output_image = GetImageFromPixels(pixels);
 
+
+            var output_image = GetImageFromPixels(pixels);
+           
             return ConvertToImage(output_image);
         }
+
+        private static void CalculateCenter(Centroid centroid)
+        {
+            if (centroid.Pixels.Count == 0) return;
+            centroid.Color = Color.FromArgb(
+                               (int)centroid.Pixels.Average(p => p.Color.R),
+                               (int)centroid.Pixels.Average(p => p.Color.G),
+                               (int)centroid.Pixels.Average(p => p.Color.B)
+                               );
+        }
+
         
         private static List<Centroid> GetCentroids(int k)
         {
