@@ -17,19 +17,12 @@ namespace KmeansColorClustering
         {
             var input_image = ConvertToByteArray(image);
 
-            List<Color> centroids =[];
-
+            List<Centroid> centroids =[];
             for(int i = 0; i < k; i++)
             {
-                centroids.Add(GenerateCentroid(input_image, centroids));
+                centroids.Add(GenerateCentroid(centroids));
             }
-            MessageBox.Show("Centroids generated");
-            StringBuilder sb = new();
-            foreach (var c in centroids)
-            {
-                sb.Append($"Centroid:  R: { c.R.ToString()} G: {c.G.ToString()} B: {c.B.ToString()}\n");
-            }
-            MessageBox.Show(sb.ToString());
+
             
             return new Bitmap(1, 1);
         }
@@ -99,11 +92,11 @@ namespace KmeansColorClustering
                 );
         }
         
-        private static Color GenerateCentroid(byte[,,] image, List<Color> centroids)
+        private static Centroid GenerateCentroid(List<Centroid> centroids)
         {
-            Color color = GenerateRandomColor(); // This method is just here to improve readability. You can thank me later 
+            Centroid c = new(GenerateRandomColor()); // This method is just here to improve readability. You can thank me later 
 
-            return (centroids.Contains(color)) ? GenerateCentroid(image, centroids) : color; // Avoid centroids spawning on top of each other
+            return (centroids.Contains(c)) ? GenerateCentroid(centroids) : c; // Avoid centroids spawning on top of each other
         }
 
 
@@ -111,7 +104,6 @@ namespace KmeansColorClustering
         /// Generates a random color
         /// </summary>
         /// <returns>Returns a <see cref="Color"/> with random RGB values [0, 255].</returns>
-
         private static Color GenerateRandomColor()
         {
             Random random = new();
