@@ -3,16 +3,22 @@
  * Program: KmeansColorClustering (For image color reduction)
  * Subject: MELA-4AHWII
 */
+using System.Diagnostics;
+
 namespace KmeansColorClustering
 {
     public partial class Form1 : Form
     {
+        public Action<byte> updateProgress;
+
         private readonly List<Size> Resolutions = [
             new(1280, 720),
             new(1920, 1080),
             new(2560, 1440),
             ];
         Image originalImage = new Bitmap(1, 1); // Just to avoid null reference exception
+        Image resultImage = new Bitmap(1, 1);
+        Image diffImage = new Bitmap(1, 1);
 
         public Form1()
         {
@@ -70,6 +76,7 @@ namespace KmeansColorClustering
                     pictureBoxOriginal.Image = originalImage;
                     pictureBoxOriginal.SizeMode = PictureBoxSizeMode.Zoom;
                     label4.Text = $"Image loaded from: {ofd.FileName}";
+                    btnGO.Enabled = true;
                 }
                 catch (Exception ex)
                 {
@@ -84,15 +91,39 @@ namespace KmeansColorClustering
 
         private void BtnGO_Click(object sender, EventArgs e)
         {
+            Stopwatch sw = new();
+            sw.Start();
+
             int k = (int)numInClusters.Value;
             int iterations = (int)numInIterations.Value;
             int runs = (int)numInRuns.Value;
-            Image res = KMeans.ClusterImage(originalImage, k, iterations, runs);
-            pictureBoxOutput.Image = res;
+            bool generateDiff = chkGenerateDiff.Checked;
+
+            resultImage = KMeans.Cluster(originalImage, k, iterations, runs, progress => { progressBar1.Value = progress; });
+            if (generateDiff)
+            {
+                diffImage = KMeans.GenerateDifferenceImage(originalImage, resultImage);
+            }
+
+
+            progressBar1.Value = 0;
+            pictureBoxOutput.Image = resultImage;
+            btnSaveDiff.Enabled = generateDiff;
             btnSave.Enabled = true;
+
+            label5.Text = $"Time elapsed: {sw.ElapsedMilliseconds}ms";
         }
 
         private void BtnSave_Click(object sender, EventArgs e)
+        {
+            SaveImage(resultImage);
+        }
+
+        private void BtnSaveDiff_Click(object sender, EventArgs e)
+        {
+            SaveImage(diffImage);
+        }
+        private static void SaveImage(Image image)
         {
             using SaveFileDialog dlg = new()
             {
@@ -105,7 +136,7 @@ namespace KmeansColorClustering
             {
                 try
                 {
-                    pictureBoxOutput.Image.Save(dlg.FileName);
+                    image.Save(dlg.FileName);
                     MessageBox.Show("Image Saved Successfully");
                 }
                 catch (Exception ex)
@@ -113,7 +144,6 @@ namespace KmeansColorClustering
                     MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
-
         }
     }
 }

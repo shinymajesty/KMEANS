@@ -52,15 +52,20 @@
             tableLayoutPanel6 = new TableLayoutPanel();
             lblTitle = new Label();
             tableLayoutPanel8 = new TableLayoutPanel();
+            panel7 = new Panel();
+            label5 = new Label();
+            btnSaveDiff = new Button();
+            label4 = new Label();
+            btnSave = new Button();
+            btnGO = new Button();
+            btnLoad = new Button();
+            tableLayoutPanel9 = new TableLayoutPanel();
             tableLayoutPanel7 = new TableLayoutPanel();
             pictureBoxOutput = new PictureBox();
             lblResult = new Label();
             lblOriginal = new Label();
             pictureBoxOriginal = new PictureBox();
-            panel7 = new Panel();
-            btnSave = new Button();
-            btnGO = new Button();
-            btnLoad = new Button();
+            progressBar1 = new ProgressBar();
             tableLayoutPanel4 = new TableLayoutPanel();
             panel3 = new Panel();
             checkBox1 = new CheckBox();
@@ -68,7 +73,6 @@
             comboBox1 = new ComboBox();
             panel4 = new Panel();
             label3 = new Label();
-            label4 = new Label();
             tableLayoutPanel1.SuspendLayout();
             tableLayoutPanel2.SuspendLayout();
             tableLayoutPanel3.SuspendLayout();
@@ -81,10 +85,11 @@
             ((System.ComponentModel.ISupportInitialize)numInClusters).BeginInit();
             tableLayoutPanel6.SuspendLayout();
             tableLayoutPanel8.SuspendLayout();
+            panel7.SuspendLayout();
+            tableLayoutPanel9.SuspendLayout();
             tableLayoutPanel7.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOutput).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOriginal).BeginInit();
-            panel7.SuspendLayout();
             tableLayoutPanel4.SuspendLayout();
             panel3.SuspendLayout();
             panel4.SuspendLayout();
@@ -269,7 +274,7 @@
             numInIterations.Size = new Size(107, 32);
             numInIterations.TabIndex = 7;
             numInIterations.ThousandsSeparator = true;
-            numInIterations.Value = new decimal(new int[] { 1000, 0, 0, 0 });
+            numInIterations.Value = new decimal(new int[] { 20, 0, 0, 0 });
             // 
             // lblMaxIterations
             // 
@@ -345,7 +350,7 @@
             // tableLayoutPanel6
             // 
             tableLayoutPanel6.ColumnCount = 1;
-            tableLayoutPanel6.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tableLayoutPanel6.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             tableLayoutPanel6.Controls.Add(lblTitle, 0, 0);
             tableLayoutPanel6.Controls.Add(tableLayoutPanel8, 0, 1);
             tableLayoutPanel6.Dock = DockStyle.Fill;
@@ -372,17 +377,113 @@
             // tableLayoutPanel8
             // 
             tableLayoutPanel8.ColumnCount = 1;
-            tableLayoutPanel8.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-            tableLayoutPanel8.Controls.Add(tableLayoutPanel7, 0, 1);
+            tableLayoutPanel8.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             tableLayoutPanel8.Controls.Add(panel7, 0, 0);
-            tableLayoutPanel8.Dock = DockStyle.Fill;
+            tableLayoutPanel8.Controls.Add(tableLayoutPanel9, 0, 1);
             tableLayoutPanel8.Location = new Point(3, 76);
             tableLayoutPanel8.Name = "tableLayoutPanel8";
             tableLayoutPanel8.RowCount = 2;
-            tableLayoutPanel8.RowStyles.Add(new RowStyle(SizeType.Percent, 38.5983276F));
-            tableLayoutPanel8.RowStyles.Add(new RowStyle(SizeType.Percent, 61.4016724F));
+            tableLayoutPanel8.RowStyles.Add(new RowStyle(SizeType.Percent, 33.3333321F));
+            tableLayoutPanel8.RowStyles.Add(new RowStyle(SizeType.Percent, 66.6666641F));
+            tableLayoutPanel8.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
             tableLayoutPanel8.Size = new Size(1507, 956);
             tableLayoutPanel8.TabIndex = 1;
+            // 
+            // panel7
+            // 
+            panel7.Controls.Add(label5);
+            panel7.Controls.Add(btnSaveDiff);
+            panel7.Controls.Add(label4);
+            panel7.Controls.Add(btnSave);
+            panel7.Controls.Add(btnGO);
+            panel7.Controls.Add(btnLoad);
+            panel7.Dock = DockStyle.Fill;
+            panel7.Location = new Point(3, 3);
+            panel7.Name = "panel7";
+            panel7.Size = new Size(1501, 312);
+            panel7.TabIndex = 1;
+            // 
+            // label5
+            // 
+            label5.AutoSize = true;
+            label5.Font = new Font("Consolas", 18F);
+            label5.ForeColor = SystemColors.ControlDarkDark;
+            label5.Location = new Point(312, 140);
+            label5.Name = "label5";
+            label5.Size = new Size(0, 28);
+            label5.TabIndex = 5;
+            // 
+            // btnSaveDiff
+            // 
+            btnSaveDiff.Enabled = false;
+            btnSaveDiff.Font = new Font("Consolas", 18F);
+            btnSaveDiff.Location = new Point(312, 223);
+            btnSaveDiff.Name = "btnSaveDiff";
+            btnSaveDiff.Size = new Size(314, 49);
+            btnSaveDiff.TabIndex = 4;
+            btnSaveDiff.Text = "Save Difference Image";
+            btnSaveDiff.UseVisualStyleBackColor = true;
+            btnSaveDiff.Click += BtnSaveDiff_Click;
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Font = new Font("Consolas", 18F);
+            label4.ForeColor = SystemColors.ControlDarkDark;
+            label4.Location = new Point(312, 52);
+            label4.Name = "label4";
+            label4.Size = new Size(0, 28);
+            label4.TabIndex = 3;
+            // 
+            // btnSave
+            // 
+            btnSave.Enabled = false;
+            btnSave.Font = new Font("Consolas", 18F);
+            btnSave.Location = new Point(45, 223);
+            btnSave.Name = "btnSave";
+            btnSave.Size = new Size(239, 49);
+            btnSave.TabIndex = 2;
+            btnSave.Text = "Save Image";
+            btnSave.UseVisualStyleBackColor = true;
+            btnSave.Click += BtnSave_Click;
+            // 
+            // btnGO
+            // 
+            btnGO.Enabled = false;
+            btnGO.Font = new Font("Consolas", 18F);
+            btnGO.Location = new Point(45, 130);
+            btnGO.Name = "btnGO";
+            btnGO.Size = new Size(239, 49);
+            btnGO.TabIndex = 1;
+            btnGO.Text = "Reduce Colors";
+            btnGO.UseVisualStyleBackColor = true;
+            btnGO.Click += BtnGO_Click;
+            // 
+            // btnLoad
+            // 
+            btnLoad.Font = new Font("Consolas", 18F);
+            btnLoad.Location = new Point(45, 42);
+            btnLoad.Name = "btnLoad";
+            btnLoad.Size = new Size(239, 49);
+            btnLoad.TabIndex = 0;
+            btnLoad.Text = "Load Image";
+            btnLoad.UseVisualStyleBackColor = true;
+            btnLoad.Click += BtnLoad_Click;
+            // 
+            // tableLayoutPanel9
+            // 
+            tableLayoutPanel9.ColumnCount = 1;
+            tableLayoutPanel9.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tableLayoutPanel9.Controls.Add(tableLayoutPanel7, 0, 0);
+            tableLayoutPanel9.Controls.Add(progressBar1, 0, 1);
+            tableLayoutPanel9.Dock = DockStyle.Fill;
+            tableLayoutPanel9.Location = new Point(3, 321);
+            tableLayoutPanel9.Name = "tableLayoutPanel9";
+            tableLayoutPanel9.RowCount = 2;
+            tableLayoutPanel9.RowStyles.Add(new RowStyle(SizeType.Percent, 90F));
+            tableLayoutPanel9.RowStyles.Add(new RowStyle(SizeType.Percent, 10F));
+            tableLayoutPanel9.Size = new Size(1501, 632);
+            tableLayoutPanel9.TabIndex = 2;
             // 
             // tableLayoutPanel7
             // 
@@ -394,21 +495,21 @@
             tableLayoutPanel7.Controls.Add(lblResult, 1, 0);
             tableLayoutPanel7.Controls.Add(lblOriginal, 0, 0);
             tableLayoutPanel7.Controls.Add(pictureBoxOriginal, 0, 1);
-            tableLayoutPanel7.Dock = DockStyle.Top;
-            tableLayoutPanel7.Location = new Point(3, 372);
+            tableLayoutPanel7.Dock = DockStyle.Fill;
+            tableLayoutPanel7.Location = new Point(3, 3);
             tableLayoutPanel7.Name = "tableLayoutPanel7";
             tableLayoutPanel7.RowCount = 2;
             tableLayoutPanel7.RowStyles.Add(new RowStyle(SizeType.Percent, 12.9237289F));
             tableLayoutPanel7.RowStyles.Add(new RowStyle(SizeType.Percent, 87.07627F));
-            tableLayoutPanel7.Size = new Size(1501, 517);
+            tableLayoutPanel7.Size = new Size(1495, 562);
             tableLayoutPanel7.TabIndex = 0;
             // 
             // pictureBoxOutput
             // 
             pictureBoxOutput.Dock = DockStyle.Fill;
-            pictureBoxOutput.Location = new Point(754, 73);
+            pictureBoxOutput.Location = new Point(751, 78);
             pictureBoxOutput.Name = "pictureBoxOutput";
-            pictureBoxOutput.Size = new Size(742, 439);
+            pictureBoxOutput.Size = new Size(739, 479);
             pictureBoxOutput.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBoxOutput.TabIndex = 3;
             pictureBoxOutput.TabStop = false;
@@ -417,9 +518,9 @@
             // 
             lblResult.Dock = DockStyle.Fill;
             lblResult.Font = new Font("Consolas", 18F);
-            lblResult.Location = new Point(754, 2);
+            lblResult.Location = new Point(751, 2);
             lblResult.Name = "lblResult";
-            lblResult.Size = new Size(742, 66);
+            lblResult.Size = new Size(739, 71);
             lblResult.TabIndex = 1;
             lblResult.Text = "Reduced Image (Preview)";
             lblResult.TextAlign = ContentAlignment.MiddleCenter;
@@ -430,7 +531,7 @@
             lblOriginal.Font = new Font("Consolas", 18F);
             lblOriginal.Location = new Point(5, 2);
             lblOriginal.Name = "lblOriginal";
-            lblOriginal.Size = new Size(741, 66);
+            lblOriginal.Size = new Size(738, 71);
             lblOriginal.TabIndex = 0;
             lblOriginal.Text = "Original Image (Preview)";
             lblOriginal.TextAlign = ContentAlignment.MiddleCenter;
@@ -438,58 +539,21 @@
             // pictureBoxOriginal
             // 
             pictureBoxOriginal.Dock = DockStyle.Fill;
-            pictureBoxOriginal.Location = new Point(5, 73);
+            pictureBoxOriginal.Location = new Point(5, 78);
             pictureBoxOriginal.Name = "pictureBoxOriginal";
-            pictureBoxOriginal.Size = new Size(741, 439);
+            pictureBoxOriginal.Size = new Size(738, 479);
             pictureBoxOriginal.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBoxOriginal.TabIndex = 2;
             pictureBoxOriginal.TabStop = false;
             // 
-            // panel7
+            // progressBar1
             // 
-            panel7.Controls.Add(label4);
-            panel7.Controls.Add(btnSave);
-            panel7.Controls.Add(btnGO);
-            panel7.Controls.Add(btnLoad);
-            panel7.Dock = DockStyle.Fill;
-            panel7.Location = new Point(3, 3);
-            panel7.Name = "panel7";
-            panel7.Size = new Size(1501, 363);
-            panel7.TabIndex = 1;
-            // 
-            // btnSave
-            // 
-            btnSave.Enabled = false;
-            btnSave.Font = new Font("Consolas", 18F);
-            btnSave.Location = new Point(45, 148);
-            btnSave.Name = "btnSave";
-            btnSave.Size = new Size(193, 49);
-            btnSave.TabIndex = 2;
-            btnSave.Text = "Save Image";
-            btnSave.UseVisualStyleBackColor = true;
-            btnSave.Click += BtnSave_Click;
-            // 
-            // btnGO
-            // 
-            btnGO.Font = new Font("Consolas", 18F);
-            btnGO.Location = new Point(45, 251);
-            btnGO.Name = "btnGO";
-            btnGO.Size = new Size(239, 49);
-            btnGO.TabIndex = 1;
-            btnGO.Text = "Reduce Colors";
-            btnGO.UseVisualStyleBackColor = true;
-            btnGO.Click += BtnGO_Click;
-            // 
-            // btnLoad
-            // 
-            btnLoad.Font = new Font("Consolas", 18F);
-            btnLoad.Location = new Point(45, 40);
-            btnLoad.Name = "btnLoad";
-            btnLoad.Size = new Size(193, 49);
-            btnLoad.TabIndex = 0;
-            btnLoad.Text = "Load Image";
-            btnLoad.UseVisualStyleBackColor = true;
-            btnLoad.Click += BtnLoad_Click;
+            progressBar1.Dock = DockStyle.Fill;
+            progressBar1.Location = new Point(3, 571);
+            progressBar1.Name = "progressBar1";
+            progressBar1.Size = new Size(1495, 58);
+            progressBar1.Style = ProgressBarStyle.Continuous;
+            progressBar1.TabIndex = 1;
             // 
             // tableLayoutPanel4
             // 
@@ -547,7 +611,7 @@
             comboBox1.Location = new Point(24, 33);
             comboBox1.Margin = new Padding(4, 3, 4, 3);
             comboBox1.Name = "comboBox1";
-            comboBox1.Size = new Size(187, 32);
+            comboBox1.Size = new Size(187, 34);
             comboBox1.Sorted = true;
             comboBox1.TabIndex = 0;
             // 
@@ -569,16 +633,6 @@
             label3.Size = new Size(194, 45);
             label3.TabIndex = 0;
             label3.Text = "App Settings";
-            // 
-            // label4
-            // 
-            label4.AutoSize = true;
-            label4.Font = new Font("Consolas", 18F);
-            label4.ForeColor = SystemColors.ControlDarkDark;
-            label4.Location = new Point(244, 50);
-            label4.Name = "label4";
-            label4.Size = new Size(0, 28);
-            label4.TabIndex = 3;
             // 
             // Form1
             // 
@@ -608,11 +662,12 @@
             ((System.ComponentModel.ISupportInitialize)numInClusters).EndInit();
             tableLayoutPanel6.ResumeLayout(false);
             tableLayoutPanel8.ResumeLayout(false);
+            panel7.ResumeLayout(false);
+            panel7.PerformLayout();
+            tableLayoutPanel9.ResumeLayout(false);
             tableLayoutPanel7.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)pictureBoxOutput).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOriginal).EndInit();
-            panel7.ResumeLayout(false);
-            panel7.PerformLayout();
             tableLayoutPanel4.ResumeLayout(false);
             panel3.ResumeLayout(false);
             panel3.PerformLayout();
@@ -663,5 +718,9 @@
         private PictureBox pictureBoxOriginal;
         private Button btnSave;
         private Label label4;
+        private Button btnSaveDiff;
+        private TableLayoutPanel tableLayoutPanel9;
+        private ProgressBar progressBar1;
+        private Label label5;
     }
 }

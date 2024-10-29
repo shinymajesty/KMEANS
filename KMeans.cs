@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Numerics;
 
 namespace KmeansColorClustering
 {
@@ -14,17 +16,62 @@ namespace KmeansColorClustering
         // Generate DIFF function
 
 
-        internal static Image ClusterImage(Image image, int k, int iterations, int runs)
+        internal static Image Cluster(Image image, int k, int iterations, int runs, Action<byte> updateProgress)
         {
             var input_image = ConvertToByteArray(image);
+            byte[,,] output_image = new byte[0,0,0];
 
+            
 
-            List<Centroid> centroids = GetCentroids(k);
+            int progress = 0;
 
             List<Pixel> pixels = GetPixelsFromImage(input_image);
+            List<List<Centroid>> clusters = []; 
 
-            for (int i = 0; i < 10; i++)
+
+            for (int r = 1; r <= runs; r++)
             {
+                List<Centroid> centroids = ClusterImage(pixels, k, iterations, runs, ref progress, updateProgress);
+
+                clusters.Add(centroids);
+            }
+
+            List<double> dists = [];
+            foreach (var centroid in clusters)
+                dists.Add(CalculateVariance(centroid));
+
+            List<Centroid> finalCentroids = clusters.OrderBy(CalculateVariance).First();
+
+
+
+
+
+            foreach (var centroid in finalCentroids)
+            {
+                foreach (var pixel in centroid.Pixels)
+                {
+                    pixel.Color = centroid.Color;
+                }
+
+            }
+
+
+            output_image = GetImageFromPixels(pixels);
+
+            return ConvertToImage(output_image);
+        }
+
+
+        private static List<Centroid> ClusterImage(List<Pixel> pixels, int k, int iterations, int runs, ref int progress, Action<byte> updateProgress)
+        {
+            List<Centroid> centroids = GetCentroids(k);
+            for (int i = 1; i <= iterations; i++)
+            {
+                updateProgress((byte)(((progress++) * 100) / (runs * iterations)));
+
+                List<Centroid> prevCentroinds = centroids;
+                bool hasChanged = false;
+
                 foreach (var centroid in centroids)
                     centroid.Pixels.Clear();
 
@@ -33,7 +80,7 @@ namespace KmeansColorClustering
                     Centroid closestCentroid = Pixel.FindClosestCentroid(centroids, pixel);
                     lock (closestCentroid.Pixels)
                         closestCentroid.Pixels.Add(pixel);
-                    
+
                 });
 
                 Parallel.ForEach(centroids, centroid =>
@@ -41,28 +88,22 @@ namespace KmeansColorClustering
                     CalculateCenter(centroid);
                 });
 
-
-            }
-
-            foreach (var centroid in centroids)
-            {
-                foreach (var pixel in centroid.Pixels)
+                for (int j = 0; j < centroids.Count; j++)
                 {
-                    pixel.Color = centroid.Color;
+                    if (!(centroids[j].Pixels != prevCentroinds[j].Pixels))
+                        hasChanged = true;
                 }
-                
+                if (!hasChanged) break;
+
             }
-
-
-            var output_image = GetImageFromPixels(pixels);
-           
-            return ConvertToImage(output_image);
+            return centroids;
         }
 
-        static Bitmap ConvertTo24bpp(Bitmap img)
+
+        private static Bitmap ConvertTo24bpp(Bitmap img)
         {
             // Create a new Bitmap with 24bpp format and the same size as the original image
-            Bitmap newImage = new Bitmap(img.Width, img.Height, PixelFormat.Format24bppRgb);
+            Bitmap newImage = new(img.Width, img.Height, PixelFormat.Format24bppRgb);
 
             // Use Graphics to draw the 32bpp image onto the 24bpp Bitmap
             using (Graphics g = Graphics.FromImage(newImage))
@@ -72,6 +113,27 @@ namespace KmeansColorClustering
 
             return newImage;
         }
+
+
+
+        private static double CalculateVariance(List<Centroid> centroids) => centroids.Sum(c => CalculateVariance(c));
+
+        private static double CalculateVariance(Centroid centroid)
+        {
+            int variance = 0;
+
+            if (centroid.Pixels.Count == 0) 
+                return variance;
+
+            foreach (var pixel in centroid.Pixels)
+            {
+                variance += Distance(centroid.Color, pixel.Color);
+            }
+            return Math.Sqrt(variance/centroid.Pixels.Count);
+        }
+
+
+
 
         private static void CalculateCenter(Centroid centroid)
         {
@@ -83,7 +145,7 @@ namespace KmeansColorClustering
                                );
         }
 
-        
+
         private static List<Centroid> GetCentroids(int k)
         {
             List<Centroid> centroids = [];
@@ -122,10 +184,23 @@ namespace KmeansColorClustering
         }
 
 
-        internal static Image GeneratDifferentialImage(Image a, Image b)
+        internal static Image GenerateDifferenceImage(Image a, Image b)
         {
-            if (a == b) { }
-            return new Bitmap(1, 1);
+            byte[,,] img1 = ConvertToByteArray(a);
+            byte[,,] img2 = ConvertToByteArray(b);
+
+            byte[,,] result = new byte[img1.GetLength(0), img1.GetLength(1), 3];
+
+            for(int i = 0; i < result.GetLength(0); i++)
+            {
+                for(int j = 0; j < result.GetLength(1); j++)
+                {
+                    result[i, j, 0] = (byte)Math.Abs(img1[i, j, 0] - img2[i, j, 0]);
+                    result[i, j, 1] = (byte)Math.Abs(img1[i, j, 1] - img2[i, j, 1]);
+                    result[i, j, 2] = (byte)Math.Abs(img1[i, j, 2] - img2[i, j, 2]);
+                }
+            }
+            return ConvertToImage(result);
         }
 
 
@@ -134,8 +209,7 @@ namespace KmeansColorClustering
         /// </summary>
         /// <param name="image">The image to be converted</param>
         /// <returns>byte[,,] the result as [Width,Height,[R,G,B]]</returns>
-        internal static byte[,,] ConvertToByteArray(Image image) // I made this myself im so proud haha :D no dependencies for me!!!!!!
-        // but seriously, i don't know if it's just alot less efficient but all others do it with a DataStream or something this just so easy why not?
+        internal static byte[,,] ConvertToByteArray(Image image) 
         // turns out GePixel is stupid slow so he is gonna get replaced by LockBits
         {
             using Bitmap bmp = ConvertTo24bpp(new(image));
@@ -205,12 +279,16 @@ namespace KmeansColorClustering
 
             return bmp;
         }
-        
+
 
         internal static int Distance(Color a, Color b)
         {
-            return Distance([a.R, a.G, a.B], [b.R, b.G, b.B]);
+            Vector3 color1 = new(a.R, a.G, a.B);
+            Vector3 color2 = new(b.R, b.G, b.B);
+            Vector3 diff = color1 - color2;
+            return (int)Vector3.Dot(diff, diff); // Squared distance
         }
+
 
 
         /// <summary>
