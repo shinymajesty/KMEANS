@@ -62,15 +62,14 @@ namespace KmeansColorClustering
         }
 
 
-        private static List<Centroid> ClusterImage(List<Pixel> pixels, int k, int iterations, int runs, ref int progress, Action<byte> updateProgress)
+        private static List<Centroid> ClusterImage(List<Pixel> pixels, int k, int iterations, int runs, ref int progress, Action<byte> updateProgress, double convergenceThreshold = 0.1)
         {
             List<Centroid> centroids = GetCentroids(k);
             for (int i = 1; i <= iterations; i++)
             {
                 updateProgress((byte)(((progress++) * 100) / (runs * iterations)));
 
-                List<Centroid> prevCentroinds = centroids;
-                bool hasChanged = false;
+                List<Centroid> prevCentroids = centroids.Select(c => new Centroid(c.Color)).ToList();
 
                 foreach (var centroid in centroids)
                     centroid.Pixels.Clear();
@@ -88,17 +87,26 @@ namespace KmeansColorClustering
                     CalculateCenter(centroid);
                 });
 
-                for (int j = 0; j < centroids.Count; j++)
-                {
-                    if (!(centroids[j].Pixels != prevCentroinds[j].Pixels))
-                        hasChanged = true;
-                }
-                if (!hasChanged) break;
+                
+
+                if (CheckCentroidMovement(centroids, prevCentroids, convergenceThreshold)) // If centroids didn't move its safe to say that the algorithm can stop
+                    break;
+
 
             }
             return centroids;
         }
 
+
+        private static bool CheckCentroidMovement(List<Centroid> centroids, List<Centroid> prevCentroids, double threshold)
+        {
+            var distances = centroids.Zip(prevCentroids, (current, previous) => Distance(current.Color, previous.Color)).ToList();
+            // So what this does is: it fuses centroids and prevCentroids into a new list where each element is the distance between the two centroids
+            // We can do this because no new centroids are added as the algorithm runs. 
+            // After that all the distances are compared with the threshold to check wether the centroids moved or not
+            // .All returns true if ALL elements of the collection fulfull the condition in this case the minimum moved distance.
+            return distances.All(distance => distance < threshold);
+        }
 
         private static Bitmap ConvertTo24bpp(Bitmap img)
         {
