@@ -12,39 +12,45 @@ namespace KmeansColorClustering
 {
     internal class KMeans
     {
-        // TODO: Implement KMeans algorithm for clustering
-        // Generate DIFF function
-
-
+        //Parameters dont show in summary I'm not really sure as to why though ...
+        /// <summary>
+        /// Clusters an Image using K-Means Clustering Algorithm
+        /// </summary>
+        /// <param name="image"><see cref="Image"/> image to be clustered</param>
+        /// <param name="k"><see cref="int"/> number of colors</param>
+        /// <param name="iterations"><see cref="int"/> number of maximum iterations</param>
+        /// <param name="runs"><see cref="int"/> number of runs</param>
+        /// <param name="updateProgress"> <see cref="Action{Byte}"/> binding to progressbar</param>
+        /// <returns> Clustered <see cref="Image"/> image</returns>
         internal static Image Cluster(Image image, int k, int iterations, int runs, Action<byte> updateProgress)
         {
-            var input_image = ConvertToByteArray(image);
+            var input_image = ConvertToByteArray(image); // Convert Image to Byte array so we can alter pixel directly and efficiently!
             byte[,,] output_image = new byte[0,0,0];
 
-            
+            int progress = 0; // Variable for progressbar progress
 
-            int progress = 0;
-
-            List<Pixel> pixels = GetPixelsFromImage(input_image);
-            List<List<Centroid>> clusters = []; 
+            List<Pixel> pixels = GetPixelsFromImage(input_image); // Get a list of pixel from our byte array
+            List<List<Centroid>> clusters = []; // Centroids for each run saveed in a lisst of lists
 
 
-            for (int r = 1; r <= runs; r++)
+            for (int r = 1; r <= runs; r++) // Get all the centroids for all the runs
             {
                 List<Centroid> centroids = ClusterImage(pixels, k, iterations, runs, ref progress, updateProgress);
 
                 clusters.Add(centroids);
             }
 
+
+            // Calculate all variance for each run in order to find the smallest
             List<double> dists = [];
             foreach (var centroid in clusters)
                 dists.Add(CalculateVariance(centroid));
 
-            List<Centroid> finalCentroids = clusters.OrderBy(CalculateVariance).First();
+            List<Centroid> finalCentroids = clusters.OrderBy(CalculateVariance).First(); // Order by shortest distance and take the first elemnt
 
 
 
-
+            // Assign each pixel the color of the centroid (for generating the output image)
 
             foreach (var centroid in finalCentroids)
             {
@@ -56,24 +62,41 @@ namespace KmeansColorClustering
             }
 
 
-            output_image = GetImageFromPixels(pixels);
+            output_image = GetImageFromPixels(pixels); // Convert list of pixels back to Byte[,,]
 
-            return ConvertToImage(output_image);
+            return ConvertToImage(output_image); // Turn the byte[,,] back to type System.Drawing.Image
         }
 
-
+        /// <summary>
+        /// Clustering of singular image without selecting the optimal run
+        /// </summary>
+        /// <param name="image"><see cref="Image"/> image to be clustered</param>
+        /// <param name="k"><see cref="int"/> number of colors</param>
+        /// <param name="iterations"><see cref="int"/> number of maximum iterations</param>
+        /// <param name="runs"><see cref="int"/> number of runs</param>
+        /// <param name="progress"><see cref="ref int"/> the current progress of the algorithm</param>
+        /// <param name="updateProgress"> <see cref="Action{Byte}"/> binding to progressbar</param>
+        /// <param name="convergenceThreshold"> minimum amount of change for the algorithm to exit</param>
+        /// <returns> Clustered <see cref="Image"/> image</returns>
         private static List<Centroid> ClusterImage(List<Pixel> pixels, int k, int iterations, int runs, ref int progress, Action<byte> updateProgress, double convergenceThreshold = 0.1)
         {
             List<Centroid> centroids = GetCentroids(k);
             for (int i = 1; i <= iterations; i++)
             {
+                // Update the progressbar
                 updateProgress((byte)(((progress++) * 100) / (runs * iterations)));
 
+
+                // Remember the previous centroids to check for convergence
                 List<Centroid> prevCentroids = centroids.Select(c => new Centroid(c.Color)).ToList();
 
+
+                // Empty the HashSet of pixels in the centroid, since some pixels might not be assigned to the centroid
+                // it used to be assigned to anymore
                 foreach (var centroid in centroids)
                     centroid.Pixels.Clear();
 
+                // Find the closest centroid foreach pixel
                 Parallel.ForEach(pixels, pixel =>
                 {
                     Centroid closestCentroid = Pixel.FindClosestCentroid(centroids, pixel);
@@ -82,13 +105,14 @@ namespace KmeansColorClustering
 
                 });
 
+                // Calculate the center for each centroid 
                 Parallel.ForEach(centroids, centroid =>
                 {
                     CalculateCenter(centroid);
                 });
 
                 
-
+                // Stop the algorithm if centroids converged
                 if (CheckCentroidMovement(centroids, prevCentroids, convergenceThreshold)) // If centroids didn't move its safe to say that the algorithm can stop
                     break;
 
@@ -97,7 +121,13 @@ namespace KmeansColorClustering
             return centroids;
         }
 
-
+        /// <summary>
+        /// Finds out wether or not centroids moved more than the threshold
+        /// </summary>
+        /// <param name="centroids"><see cref="List{Centroid}"/>Current Centroids</param>
+        /// <param name="prevCentroids"><see cref="List{Centroid}"/>Previous Centroids</param>
+        /// <param name="threshold"><see cref="double">The convergence threshold</param>
+        /// <returns><see cref="bool"/>Returns True when all centroids moved LESS than the specified threshold</returns>
         private static bool CheckCentroidMovement(List<Centroid> centroids, List<Centroid> prevCentroids, double threshold)
         {
             var distances = centroids.Zip(prevCentroids, (current, previous) => Distance(current.Color, previous.Color)).ToList();
@@ -105,15 +135,22 @@ namespace KmeansColorClustering
             // We can do this because no new centroids are added as the algorithm runs. 
             // After that all the distances are compared with the threshold to check wether the centroids moved or not
             // .All returns true if ALL elements of the collection fulfull the condition in this case the minimum moved distance.
+            // Never using LINQ again ...
             return distances.All(distance => distance < threshold);
         }
 
+        /// <summary>
+        /// Turns a 32bpp (bits per pixel [R;G,B;A]) Image into one with 24bpp [R;G;B]
+        /// </summary>
+        /// <param name="img"><see cref="Bitmap"/>Image to be converted (32bpp)</param>
+        /// <returns><see cref="Bitmap"/>The converted (24bpp) Image</returns>
         private static Bitmap ConvertTo24bpp(Bitmap img)
         {
             // Create a new Bitmap with 24bpp format and the same size as the original image
             Bitmap newImage = new(img.Width, img.Height, PixelFormat.Format24bppRgb);
 
             // Use Graphics to draw the 32bpp image onto the 24bpp Bitmap
+            // This "Deletes" the alpha color channel
             using (Graphics g = Graphics.FromImage(newImage))
             {
                 g.DrawImage(img, new Rectangle(0, 0, img.Width, img.Height));
@@ -123,31 +160,34 @@ namespace KmeansColorClustering
         }
 
 
-
+        /// <summary>
+        /// Calculates the sum of the variances of all centroids in a list
+        /// </summary>
+        /// <param name="centroids"><see cref="List{Centroid}"/>The List of centroids</param>
+        /// <returns>The sum of all variances as <see cref="double"/></returns>
         private static double CalculateVariance(List<Centroid> centroids) => centroids.Sum(c => CalculateVariance(c));
 
-        private static double CalculateVariance(Centroid centroid)
-        {
-            int variance = 0;
-
-            if (centroid.Pixels.Count == 0) 
-                return variance;
-
-            foreach (var pixel in centroid.Pixels)
-            {
-                variance += Distance(centroid.Color, pixel.Color);
-            }
-            return Math.Sqrt(variance/centroid.Pixels.Count);
-        }
+        /// <summary>
+        /// Calculates the sum of the variances of a centroid to its pixels
+        /// </summary>
+        /// <param name="centroids"><see cref="Centroid"/>The centroid</param>
+        /// <returns>The variances as <see cref="double"/></returns>
+        private static double CalculateVariance(Centroid centroid) 
+            => centroid.Pixels.Count == 0 ? 0 : centroid.Pixels.Sum(pixel => Distance(centroid.Color, pixel.Color));
+            // Must check the centroid contains pixels else the Sum statement will throw exception and break everything
 
 
 
-
+        /// <summary>
+        /// Calculates the position of the Centroid according to its pixels (average)
+        /// </summary>
+        /// <param name="centroid"><see cref="Centroid"/>Centroid for repositioning</param>
         private static void CalculateCenter(Centroid centroid)
         {
-            if (centroid.Pixels.Count == 0) return;
+            if (centroid.Pixels.Count == 0) return; 
+            // Again here for the next statement to execute properly we need to confirm that the centroid contains atleast a pixel
             centroid.Color = Color.FromArgb(
-                               (int)centroid.Pixels.Average(p => p.Color.R),
+                               (int)centroid.Pixels.Average(p => p.Color.R), 
                                (int)centroid.Pixels.Average(p => p.Color.G),
                                (int)centroid.Pixels.Average(p => p.Color.B)
                                );
@@ -218,7 +258,7 @@ namespace KmeansColorClustering
         /// <param name="image">The image to be converted</param>
         /// <returns>byte[,,] the result as [Width,Height,[R,G,B]]</returns>
         internal static byte[,,] ConvertToByteArray(Image image) 
-        // turns out GePixel is stupid slow so he is gonna get replaced by LockBits
+        // turns out GetPixel is stupid slow so he is gonna get replaced by LockBits
         {
             using Bitmap bmp = ConvertTo24bpp(new(image));
             Rectangle rect = new(0, 0, bmp.Width, bmp.Height);
@@ -252,7 +292,11 @@ namespace KmeansColorClustering
             // Keep in mind these numbers are built in debug and not release so it will be even faster later on !! ^^
         }
 
-
+        /// <summary>
+        /// Converts a 3D byte array to an Image
+        /// </summary>
+        /// <param name="image"><see cref="byte[,,]"/>The image as 3D byte array</param>
+        /// <returns><see cref="Image"/> The byte array as Image</returns>
         internal static Image ConvertToImage(byte[,,] image)
         {
             // Exactly the same as ConvertToByteArray but in reverse 

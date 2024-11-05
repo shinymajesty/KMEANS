@@ -9,22 +9,21 @@ namespace KmeansColorClustering
 {
     public partial class Form1 : Form
     {
-        public Action<byte> updateProgress;
 
         private readonly List<Size> Resolutions = [
             new(1280, 720),
             new(1920, 1080),
             new(2560, 1440),
             ];
-        Image originalImage = new Bitmap(1, 1); // Just to avoid null reference exception
-        Image resultImage = new Bitmap(1, 1);
-        Image diffImage = new Bitmap(1, 1);
+
+        private Image originalImage = new Bitmap(1, 1); // Just to avoid null reference exception
+        private Image resultImage = new Bitmap(1, 1);
+        private Image diffImage = new Bitmap(1, 1);
 
         public Form1()
         {
             InitializeComponent();
             SetupResolutionsBox();
-
         }
 
         private void SetupResolutionsBox()
