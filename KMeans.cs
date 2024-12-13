@@ -54,14 +54,13 @@ namespace KmeansColorClustering
 
             // Assign each pixel the color of the centroid (for generating the output image)
 
-            foreach (var centroid in finalCentroids)
+            Parallel.ForEach(finalCentroids, centroid =>
             {
-                foreach (var pixel in centroid.Pixels)
+                Parallel.ForEach(centroid.Pixels, pixel =>
                 {
                     pixel.Color = centroid.Color;
-                }
-
-            }
+                });
+            });
 
             Parallel.ForEach(pixels_full, p =>
             {
