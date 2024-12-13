@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
+using System.Collections.Concurrent;
 
 namespace KmeansColorClustering
 {
@@ -97,10 +98,8 @@ namespace KmeansColorClustering
                 // Update the progressbar
                 updateProgress((byte)(((progress++) * 100) / (runs * iterations)));
 
-
                 // Remember the previous centroids to check for convergence
                 List<Centroid> prevCentroids = centroids.Select(c => new Centroid(c.Color)).ToList();
-
 
                 // Empty the HashSet of pixels in the centroid, since some pixels might not be assigned to the centroid
                 // it used to be assigned to anymore
@@ -111,9 +110,7 @@ namespace KmeansColorClustering
                 Parallel.ForEach(pixels, pixel =>
                 {
                     Centroid closestCentroid = Pixel.FindClosestCentroid(centroids, pixel);
-                    lock (closestCentroid.Pixels)
-                        closestCentroid.Pixels.Add(pixel);
-
+                    closestCentroid.Pixels.Add(pixel);
                 });
 
                 // Calculate the center for each centroid 
@@ -129,12 +126,9 @@ namespace KmeansColorClustering
                     }
                 });
 
-                
                 // Stop the algorithm if centroids converged
                 if (CheckCentroidMovement(centroids, prevCentroids, convergenceThreshold)) // If centroids didn't move its safe to say that the algorithm can stop
                     break;
-
-
             }
             return centroids;
         }
