@@ -4,6 +4,7 @@
  * Subject: MELA-4AHWII
 */
 using System.Diagnostics;
+using System.Windows.Forms;
 
 namespace KmeansColorClustering
 {
@@ -24,6 +25,7 @@ namespace KmeansColorClustering
         {
             InitializeComponent();
             SetupResolutionsBox();
+            downscaleInputNum.Controls[0].Visible = false;
         }
 
         private void SetupResolutionsBox()
@@ -97,11 +99,16 @@ namespace KmeansColorClustering
             int iterations = (int)numInIterations.Value;
             int runs = (int)numInRuns.Value;
             bool generateDiff = chkGenerateDiff.Checked;
+            int downscaleFactor = (int)downscaleInputNum.Value;
 
-            resultImage = KMeans.Cluster(originalImage, k, iterations, runs, progress => { progressBar1.Value = progress; });
+            var downscaledImage = originalImage.Downscale(originalImage.Width/downscaleFactor, originalImage.Height/downscaleFactor);
+
+            pictureBoxOriginal.Image = downscaledImage;
+
+            resultImage = KMeans.Cluster(downscaledImage, k, iterations, runs, progress => { progressBar1.Value = progress; });
             if (generateDiff)
             {
-                diffImage = KMeans.GenerateDifferenceImage(originalImage, resultImage);
+                diffImage = ImageTools.GenerateDifferenceImage(originalImage, resultImage);
             }
 
 
@@ -144,5 +151,17 @@ namespace KmeansColorClustering
                 }
             }
         }
+
+        private void TrackBar1_ValueChanged(object sender, EventArgs e)
+        {
+            downscaleInputNum.Value = trackBar1.Value;
+        }
+
+        private void downscaleInputNum_ValueChanged(object sender, EventArgs e)
+        {
+            trackBar1.Value = (int)downscaleInputNum.Value;
+        }
+
+        
     }
 }

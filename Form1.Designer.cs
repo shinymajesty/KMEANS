@@ -40,6 +40,9 @@
             tableLayoutPanel5 = new TableLayoutPanel();
             lblSettingsClustering = new Label();
             panel5 = new Panel();
+            downscaleInputNum = new NumericUpDown();
+            label6 = new Label();
+            trackBar1 = new TrackBar();
             chkGenerateDiff = new CheckBox();
             numInIterations = new NumericUpDown();
             lblMaxIterations = new Label();
@@ -80,6 +83,8 @@
             panel2.SuspendLayout();
             tableLayoutPanel5.SuspendLayout();
             panel5.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)downscaleInputNum).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)trackBar1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numInIterations).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numInRuns).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numInClusters).BeginInit();
@@ -240,6 +245,9 @@
             // 
             // panel5
             // 
+            panel5.Controls.Add(downscaleInputNum);
+            panel5.Controls.Add(label6);
+            panel5.Controls.Add(trackBar1);
             panel5.Controls.Add(chkGenerateDiff);
             panel5.Controls.Add(numInIterations);
             panel5.Controls.Add(lblMaxIterations);
@@ -252,6 +260,34 @@
             panel5.Name = "panel5";
             panel5.Size = new Size(362, 389);
             panel5.TabIndex = 2;
+            // 
+            // downscaleInputNum
+            // 
+            downscaleInputNum.Font = new Font("Consolas", 16F);
+            downscaleInputNum.Location = new Point(135, 310);
+            downscaleInputNum.Name = "downscaleInputNum";
+            downscaleInputNum.Size = new Size(42, 32);
+            downscaleInputNum.TabIndex = 6;
+            downscaleInputNum.ValueChanged += downscaleInputNum_ValueChanged;
+            // 
+            // label6
+            // 
+            label6.Font = new Font("Consolas", 18F);
+            label6.Location = new Point(1, 284);
+            label6.Margin = new Padding(4, 0, 4, 0);
+            label6.Name = "label6";
+            label6.Size = new Size(362, 30);
+            label6.TabIndex = 10;
+            label6.Text = "Downscale-Factor";
+            // 
+            // trackBar1
+            // 
+            trackBar1.Location = new Point(25, 317);
+            trackBar1.Name = "trackBar1";
+            trackBar1.Size = new Size(104, 45);
+            trackBar1.TabIndex = 9;
+            trackBar1.TickStyle = TickStyle.None;
+            trackBar1.ValueChanged += TrackBar1_ValueChanged;
             // 
             // chkGenerateDiff
             // 
@@ -611,7 +647,7 @@
             comboBox1.Location = new Point(24, 33);
             comboBox1.Margin = new Padding(4, 3, 4, 3);
             comboBox1.Name = "comboBox1";
-            comboBox1.Size = new Size(187, 34);
+            comboBox1.Size = new Size(187, 32);
             comboBox1.Sorted = true;
             comboBox1.TabIndex = 0;
             // 
@@ -657,6 +693,8 @@
             tableLayoutPanel5.ResumeLayout(false);
             panel5.ResumeLayout(false);
             panel5.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)downscaleInputNum).EndInit();
+            ((System.ComponentModel.ISupportInitialize)trackBar1).EndInit();
             ((System.ComponentModel.ISupportInitialize)numInIterations).EndInit();
             ((System.ComponentModel.ISupportInitialize)numInRuns).EndInit();
             ((System.ComponentModel.ISupportInitialize)numInClusters).EndInit();
@@ -722,5 +760,8 @@
         private TableLayoutPanel tableLayoutPanel9;
         private ProgressBar progressBar1;
         private Label label5;
+        private Label label6;
+        private TrackBar trackBar1;
+        private NumericUpDown downscaleInputNum;
     }
 }
