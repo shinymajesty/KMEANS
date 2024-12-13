@@ -20,7 +20,7 @@ namespace KmeansColorClustering
             int minDistance = int.MaxValue;
             foreach (var centroid in centroids)
             {
-                int distance = KMeans.Distance(pixel.Color, centroid.Color);
+                int distance = ColorHelper.Distance(pixel.Color, centroid.Color);
                 if (distance < minDistance)
                 {
                     minDistance = distance;

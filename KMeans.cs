@@ -22,14 +22,17 @@ namespace KmeansColorClustering
         /// <param name="runs"><see cref="int"/> number of runs</param>
         /// <param name="updateProgress"> <see cref="Action{Byte}"/> binding to progressbar</param>
         /// <returns> Clustered <see cref="Image"/> image</returns>
-        internal static Image Cluster(Image image, int k, int iterations, int runs, Action<byte> updateProgress)
+        internal static Image Cluster(Image image, int k, int iterations, int runs, Action<byte> updateProgress, int downscaleFactor)
         {
-            var input_image = image.ConvertToByteArray(); // Convert Image to Byte array so we can alter pixel directly and efficiently!
+            var downscaledImage = image.Downscale(image.Width / downscaleFactor, image.Height / downscaleFactor);
+            var input_image = downscaledImage.ConvertToByteArray(); // Convert Image to Byte array so we can alter pixel directly and efficiently!
+            var input_image_full = image.ConvertToByteArray();
             byte[,,] output_image = new byte[0,0,0];
 
             int progress = 0; // Variable for progressbar progress
 
             List<Pixel> pixels = GetPixelsFromImage(input_image); // Get a list of pixel from our byte array
+            List<Pixel> pixels_full = GetPixelsFromImage(input_image_full);
             List<List<Centroid>> clusters = []; // Centroids for each run saveed in a lisst of lists
 
 
@@ -48,8 +51,6 @@ namespace KmeansColorClustering
 
             List<Centroid> finalCentroids = clusters.OrderBy(CalculateVariance).First(); // Order by shortest distance and take the first elemnt
 
-
-
             // Assign each pixel the color of the centroid (for generating the output image)
 
             foreach (var centroid in finalCentroids)
@@ -61,11 +62,21 @@ namespace KmeansColorClustering
 
             }
 
+            Parallel.ForEach(pixels_full, p =>
+            {
+                p.Color = KNN.FindKNNColor(finalCentroids.Select(c => c.Color).ToArray(), p.Color, 1);
+            });
 
-            output_image = GetImageFromPixels(pixels); // Convert list of pixels back to Byte[,,]
+
+            output_image = GetImageFromPixels(pixels_full); // Convert list of pixels back to Byte[,,]
+            
+            
+
 
             return output_image.ConvertToImage(); // Turn the byte[,,] back to type System.Drawing.Image
         }
+
+
 
         /// <summary>
         /// Clustering of singular image without selecting the optimal run
@@ -108,7 +119,14 @@ namespace KmeansColorClustering
                 // Calculate the center for each centroid 
                 Parallel.ForEach(centroids, centroid =>
                 {
-                    CalculateCenter(centroid);
+                    try
+                    {
+                        centroid.Color = ColorHelper.CalculateAverageColor(centroid.Pixels);
+                    }
+                    catch (Exception e)
+                    {
+                        centroid.Color = centroid.Color; // Doesn't do anything just for readability :)
+                    }
                 });
 
                 
@@ -130,7 +148,7 @@ namespace KmeansColorClustering
         /// <returns><see cref="bool"/>Returns True when all centroids moved LESS than the specified threshold</returns>
         private static bool CheckCentroidMovement(List<Centroid> centroids, List<Centroid> prevCentroids, double threshold)
         {
-            var distances = centroids.Zip(prevCentroids, (current, previous) => Distance(current.Color, previous.Color)).ToList();
+            var distances = centroids.Zip(prevCentroids, (current, previous) => ColorHelper.Distance(current.Color, previous.Color)).ToList();
             // So what this does is: it fuses centroids and prevCentroids into a new list where each element is the distance between the two centroids
             // We can do this because no new centroids are added as the algorithm runs. 
             // After that all the distances are compared with the threshold to check wether the centroids moved or not
@@ -155,26 +173,8 @@ namespace KmeansColorClustering
         /// <param name="centroids"><see cref="Centroid"/>The centroid</param>
         /// <returns>The variances as <see cref="double"/></returns>
         private static double CalculateVariance(Centroid centroid) 
-            => centroid.Pixels.Count == 0 ? 0 : centroid.Pixels.Sum(pixel => Distance(centroid.Color, pixel.Color));
+            => centroid.Pixels.Count == 0 ? 0 : centroid.Pixels.Sum(pixel => (double)ColorHelper.Distance(centroid.Color, pixel.Color));
             // Must check the centroid contains pixels else the Sum statement will throw exception and break everything
-
-
-
-        /// <summary>
-        /// Calculates the position of the Centroid according to its pixels (average)
-        /// </summary>
-        /// <param name="centroid"><see cref="Centroid"/>Centroid for repositioning</param>
-        private static void CalculateCenter(Centroid centroid)
-        {
-            if (centroid.Pixels.Count == 0) return; 
-            // Again here for the next statement to execute properly we need to confirm that the centroid contains atleast a pixel
-            centroid.Color = Color.FromArgb(
-                               (int)centroid.Pixels.Average(p => p.Color.R), 
-                               (int)centroid.Pixels.Average(p => p.Color.G),
-                               (int)centroid.Pixels.Average(p => p.Color.B)
-                               );
-        }
-
 
         private static List<Centroid> GetCentroids(int k)
         {
@@ -213,58 +213,11 @@ namespace KmeansColorClustering
             return image;
         }
 
-
-        
-
-
-        internal static int Distance(Color a, Color b)
-        {
-            Vector3 color1 = new(a.R, a.G, a.B);
-            Vector3 color2 = new(b.R, b.G, b.B);
-            Vector3 diff = color1 - color2;
-            return (int)Vector3.Dot(diff, diff); // Squared distance
-        }
-
-
-
-        /// <summary>
-        /// Calculates the squared euclidean distance between two colors
-        /// </summary>
-        /// <param name="a">Color a</param>
-        /// <param name="b">Color b</param>
-        /// <returns>Returns the squared euclidean as <see cref="int"/></returns>
-        internal static int Distance(byte[] a, byte[] b)
-        {
-            // I reject Math.Pow because I don't like unnecessary overhead!!
-            return (int)(
-                (a[0] - b[0]) * (a[0] - b[0]) +
-                (a[1] - b[1]) * (a[1] - b[1]) +
-                (a[2] - b[2]) * (a[2] - b[2])
-            );
-        }
-
-
         private static Centroid GenerateCentroid(List<Centroid> centroids)
         {
-            Centroid c = new(GenerateRandomColor()); // This method is just here to improve readability. You can thank me later 
+            Centroid c = new(ColorHelper.GenerateRandomColor()); // This method is just here to improve readability. You can thank me later 
 
             return (centroids.Contains(c)) ? GenerateCentroid(centroids) : c; // Avoid centroids spawning on top of each other
-        }
-
-
-        /// <summary>
-        /// Generates a random color
-        /// </summary>
-        /// <returns>Returns a <see cref="Color"/> with random RGB values [0, 255].</returns>
-        private static Color GenerateRandomColor()
-        {
-            Random random = new();
-
-            int red = random.Next(0, 256);
-            int green = random.Next(0, 256);
-            int blue = random.Next(0, 256);
-
-            return Color.FromArgb(red, green, blue);
         }
     }
 }

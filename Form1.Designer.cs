@@ -265,9 +265,11 @@
             // 
             downscaleInputNum.Font = new Font("Consolas", 16F);
             downscaleInputNum.Location = new Point(135, 310);
+            downscaleInputNum.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
             downscaleInputNum.Name = "downscaleInputNum";
-            downscaleInputNum.Size = new Size(42, 32);
+            downscaleInputNum.Size = new Size(59, 32);
             downscaleInputNum.TabIndex = 6;
+            downscaleInputNum.Value = new decimal(new int[] { 1, 0, 0, 0 });
             downscaleInputNum.ValueChanged += downscaleInputNum_ValueChanged;
             // 
             // label6
@@ -283,10 +285,13 @@
             // trackBar1
             // 
             trackBar1.Location = new Point(25, 317);
+            trackBar1.Maximum = 100;
+            trackBar1.Minimum = 1;
             trackBar1.Name = "trackBar1";
             trackBar1.Size = new Size(104, 45);
             trackBar1.TabIndex = 9;
             trackBar1.TickStyle = TickStyle.None;
+            trackBar1.Value = 1;
             trackBar1.ValueChanged += TrackBar1_ValueChanged;
             // 
             // chkGenerateDiff

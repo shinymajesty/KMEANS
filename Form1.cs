@@ -101,11 +101,9 @@ namespace KmeansColorClustering
             bool generateDiff = chkGenerateDiff.Checked;
             int downscaleFactor = (int)downscaleInputNum.Value;
 
-            var downscaledImage = originalImage.Downscale(originalImage.Width/downscaleFactor, originalImage.Height/downscaleFactor);
+            pictureBoxOriginal.Image = originalImage;
 
-            pictureBoxOriginal.Image = downscaledImage;
-
-            resultImage = KMeans.Cluster(downscaledImage, k, iterations, runs, progress => { progressBar1.Value = progress; });
+            resultImage = KMeans.Cluster(originalImage, k, iterations, runs, progress => { progressBar1.Value = progress; }, downscaleFactor);
             if (generateDiff)
             {
                 diffImage = ImageTools.GenerateDifferenceImage(originalImage, resultImage);
@@ -162,6 +160,5 @@ namespace KmeansColorClustering
             trackBar1.Value = (int)downscaleInputNum.Value;
         }
 
-        
     }
 }
